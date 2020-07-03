@@ -1,0 +1,21 @@
+package forex.core.rates.domains
+
+import cats.effect.Timer
+import cats.Applicative
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
+
+case class Timestamp(value: OffsetDateTime) extends AnyVal
+
+object Timestamp {
+
+  import cats.implicits._
+  import scala.concurrent.duration._
+
+  def now[F[_]: Timer: Applicative](zoneId: ZoneId): F[Timestamp] =
+    for {
+      epoch <- Timer[F].clock.monotonic(MILLISECONDS)
+      instant = Instant.ofEpochMilli(epoch)
+    } yield Timestamp(OffsetDateTime.ofInstant(instant, zoneId))
+}
