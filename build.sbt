@@ -18,6 +18,7 @@ lazy val root = (project in file("."))
       http4sServer,
       log4cats,
       logback % Runtime,
+      enumeratum,
       pureConfig
     )
   )

@@ -16,23 +16,24 @@ import cats.effect.Sync
 import cats.effect.Timer
 import cats.effect.Concurrent
 
-class Module[F[_]: Sync: Concurrent: Timer](config: AppConfig, programAlg: app.programs.rates.Algebra[F]) {
+class Module[F[_]: Sync: Concurrent: Timer](
+    config: AppConfig,
+    programAlg: app.programs.rates.Algebra[F]
+) {
 
   import scala.concurrent.duration._
   import org.http4s.implicits._
 
   private val routes = new RatesRoutes[F](programAlg).routes
 
-  private val middleware: HttpRoutes[F] => HttpRoutes[F] = { http: HttpRoutes[F] =>
-    AutoSlash(http)
-  } andThen { http: HttpRoutes[F] =>
-    CORS(http, CORS.DefaultCORSConfig)
-  } andThen { http: HttpRoutes[F] => Timeout(config.http.timeout)(http) }
+  private val middleware: HttpRoutes[F] => HttpRoutes[F] =
+    { http: HttpRoutes[F] => AutoSlash(http)                    } andThen
+    { http: HttpRoutes[F] => CORS(http, CORS.DefaultCORSConfig) } andThen
+    { http: HttpRoutes[F] => Timeout(config.http.timeout)(http) }
 
   private val loggers: HttpApp[F] => HttpApp[F] = {
-    { http: HttpApp[F] => RequestLogger.httpApp(true, true)(http) } andThen { http: HttpApp[F] =>
-      ResponseLogger.httpApp(true, true)(http)
-    }
+    { http: HttpApp[F] => RequestLogger.httpApp(true, true)(http)  } andThen
+    { http: HttpApp[F] => ResponseLogger.httpApp(true, true)(http) }
   }
 
   val httpApp: HttpApp[F] = loggers(middleware(routes).orNotFound)

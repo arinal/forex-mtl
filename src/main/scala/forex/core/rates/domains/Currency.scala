@@ -2,10 +2,13 @@ package forex.core.rates.domains
 
 import cats.Show
 import scala.util.Try
+import enumeratum._
 
-sealed trait Currency
+sealed trait Currency extends EnumEntry
 
-object Currency {
+object Currency extends Enum[Currency] with CatsEnum[Currency] {
+
+  val values = findValues
 
   case object AUD extends Currency
   case object CAD extends Currency
@@ -16,31 +19,4 @@ object Currency {
   case object JPY extends Currency
   case object SGD extends Currency
   case object USD extends Currency
-
-  implicit val show: Show[Currency] = Show.show {
-    case AUD => "AUD"
-    case CAD => "CAD"
-    case CHF => "CHF"
-    case EUR => "EUR"
-    case GBP => "GBP"
-    case NZD => "NZD"
-    case JPY => "JPY"
-    case SGD => "SGD"
-    case USD => "USD"
-  }
-
-  def fromString(s: String): Option[Currency] =
-    Try {
-      s.toUpperCase match {
-        case "AUD" => AUD
-        case "CAD" => CAD
-        case "CHF" => CHF
-        case "EUR" => EUR
-        case "GBP" => GBP
-        case "NZD" => NZD
-        case "JPY" => JPY
-        case "SGD" => SGD
-        case "USD" => USD
-      }
-    }.toOption
 }

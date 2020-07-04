@@ -6,16 +6,16 @@ import core.rates.domains._
 import org.http4s.QueryParamDecoder
 import org.http4s.dsl.impl.QueryParamDecoderMatcher
 import io.circe._
-import io.circe.generic.semiauto._
 
 object protocols {
+
+  import io.circe.generic.semiauto._
+  import cats.syntax.show._
 
   final case class RateRequest(from: Currency, to: Currency)
   final case class RateResponse(from: Currency, to: Currency, price: Price, timestamp: Timestamp)
 
-  implicit val currencyEncoder: Encoder[Currency] = Encoder.instance[Currency] {
-    Currency.show.show _ andThen Json.fromString
-  }
+  implicit val currencyEncoder: Encoder[Currency] = Encoder.instance[Currency] { curr => Json.fromString(curr.show) }
 
   implicit val pairEncoder: Encoder[Pair]             = deriveEncoder[Pair]
   implicit val priceEncoder: Encoder[Price]           = deriveEncoder[Price]
@@ -23,8 +23,8 @@ object protocols {
   implicit val timeStampEncoder: Encoder[Timestamp]   = deriveEncoder[Timestamp]
   implicit val responseEncoder: Encoder[RateResponse] = deriveEncoder[RateResponse]
 
-  private[http] implicit val currencyParam = QueryParamDecoder[String].map(Currency.fromString)
+  private[http] implicit val currencyParam = QueryParamDecoder[String].map(Currency.withNameInsensitiveOption)
 
   object FromParam extends QueryParamDecoderMatcher[Option[Currency]]("from")
-  object ToParam extends QueryParamDecoderMatcher[Option[Currency]]("to")
+  object ToParam   extends QueryParamDecoderMatcher[Option[Currency]]("to")
 }
