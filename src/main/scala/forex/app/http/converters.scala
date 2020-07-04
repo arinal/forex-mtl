@@ -1,7 +1,8 @@
-package forex.app.http
+package forex
+package app.http
 
 import protocols.RateResponse
-import forex.core.rates.domains.Rate
+import core.rates.domains.Rate
 
 object converters {
 

@@ -2,6 +2,7 @@ package forex.app
 package http
 
 import programs.rates.protocol.GetRatesRequest
+
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.http4s.HttpRoutes

@@ -3,6 +3,7 @@ package forex
 import config.AppConfig
 import app.http.RatesRoutes
 import interps.dummy.OneFrameDummyRate
+
 import org.http4s.HttpRoutes
 import org.http4s.HttpApp
 import cats.effect.Sync
@@ -19,7 +20,7 @@ object Module {
   def apply[F[_]: Sync: Timer](config: AppConfig) =
     for {
       rateAlg <- OneFrameDummyRate[F]
-      program = forex.app.programs.rates.Algebra[F](rateAlg)
+      program = app.programs.rates.Algebra[F](rateAlg)
       routes = new RatesRoutes(program).routes.orNotFound
     } yield new Module(routes)
 }

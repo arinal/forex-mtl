@@ -4,6 +4,7 @@ package app.programs.rates
 import errors.Error
 import core.rates.domains.Rate
 import forex.core.rates.domains.Pair
+
 import cats.Functor
 
 trait Algebra[F[_]] {
