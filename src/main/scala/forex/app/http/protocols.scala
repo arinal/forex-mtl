@@ -25,6 +25,6 @@ object protocols {
 
   private[http] implicit val currencyParam = QueryParamDecoder[String].map(Currency.fromString)
 
-  object FromParam extends QueryParamDecoderMatcher[Currency]("from")
-  object ToParam extends QueryParamDecoderMatcher[Currency]("to")
+  object FromParam extends QueryParamDecoderMatcher[Option[Currency]]("from")
+  object ToParam extends QueryParamDecoderMatcher[Option[Currency]]("to")
 }

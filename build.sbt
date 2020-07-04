@@ -8,14 +8,16 @@ lazy val root = (project in file("."))
   .settings(
     name := "forex",
     libraryDependencies ++= Seq(
-          compilerPlugin(kindProjector cross CrossVersion.full),
-          cats,
-          catsEffect,
-          circeCore,
-          circeGeneric,
-          http4sDsl,
-          http4sCirce,
-          http4sServer,
-          pureConfig
-        )
+      compilerPlugin(kindProjector cross CrossVersion.full),
+      cats,
+      catsEffect,
+      circeCore,
+      circeGeneric,
+      http4sDsl,
+      http4sCirce,
+      http4sServer,
+      log4cats,
+      logback % Runtime,
+      pureConfig
+    )
   )
