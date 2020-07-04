@@ -22,6 +22,7 @@ object Dependencies {
   val http4sDsl                = http4s("http4s-dsl")
   val http4sServer             = http4s("http4s-blaze-server")
   val http4sCirce              = http4s("http4s-circe")
+  val http4sClient             = http4s("http4s-blaze-client")
 
   def circe(artifact: String) = "io.circe" %% artifact % versions.circe
   val circeCore               = circe("circe-core")

@@ -7,11 +7,7 @@ import interps.dummy.OneFrameDummyRate
 import org.http4s.HttpRoutes
 import org.http4s.HttpApp
 import org.http4s.server.Router
-import org.http4s.server.middleware.CORS
-import org.http4s.server.middleware.Timeout
-import org.http4s.server.middleware.AutoSlash
-import org.http4s.server.middleware.RequestLogger
-import org.http4s.server.middleware.ResponseLogger
+import org.http4s.server.middleware._
 import cats.effect.Sync
 import cats.effect.Timer
 import cats.effect.Concurrent

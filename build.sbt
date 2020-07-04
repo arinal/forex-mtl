@@ -16,6 +16,7 @@ lazy val root = (project in file("."))
       http4sDsl,
       http4sCirce,
       http4sServer,
+      http4sClient,
       log4cats,
       logback % Runtime,
       enumeratum,

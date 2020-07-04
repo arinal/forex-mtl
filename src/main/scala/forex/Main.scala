@@ -1,6 +1,7 @@
 package forex
 
 import org.http4s.server.blaze.BlazeServerBuilder
+
 import cats.effect._
 import cats.implicits._
 import io.chrisdavenport.log4cats.Logger

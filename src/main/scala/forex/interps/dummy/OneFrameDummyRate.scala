@@ -3,7 +3,7 @@ package interps.dummy
 
 import core.rates
 import core.rates.errors.Error
-import rates.domains.{ Pair, Price, Rate, Timestamp }
+import rates.domains.{Pair, Price, Rate, Timestamp}
 
 import cats.effect.Timer
 import cats.effect.Sync
@@ -15,7 +15,7 @@ class OneFrameDummyRate[F[_]: Sync: Timer](zoneId: ZoneId) extends rates.Algebra
 
   override def get(pair: Pair): F[Error Either Rate] =
     for {
-      now <- Timestamp.now[F](zoneId)
+      now  <- Timestamp.now[F](zoneId)
       rate = Rate(pair, Price.ofInt(100), now)
     } yield rate.asRight[Error]
 }

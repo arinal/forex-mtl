@@ -4,9 +4,12 @@ Build a local proxy for getting Currency Exchange Rates
 
 __Requirements__
 
-[Forex](forex-mtl) is a simple application that acts as a local proxy for getting exchange rates. It's a service that can be consumed by other internal services to get the exchange rate between a set of currencies, so they don't have to care about the specifics of third-party providers.
+[Forex](forex-mtl) is a simple application that acts as a local proxy for getting exchange rates.
+It's a service that can be consumed by other internal services to get the exchange rate between a set of currencies,
+so they don't have to care about the specifics of third-party providers.
 
-> An internal user of the application should be able to ask for an exchange rate between 2 given currencies, and get back a rate that is not older than 5 minutes. The application should at least support 10.000 requests per day.
+> An internal user of the application should be able to ask for an exchange rate between 2 given currencies, and get back a rate that is not older than 5 minutes.
+> The application should at least support 10.000 requests per day.
 
 In practice, this should require the following 2 points:
 
