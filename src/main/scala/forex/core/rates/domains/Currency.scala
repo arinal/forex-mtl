@@ -1,5 +1,7 @@
-package forex.core.rates.domains
+package forex.core.rates
+package domains
 
+import forex.core.rates.errors.Error.CurrencyNotSupported
 import cats.Show
 import scala.util.Try
 import enumeratum._
@@ -19,4 +21,11 @@ object Currency extends Enum[Currency] with CatsEnum[Currency] {
   case object JPY extends Currency
   case object SGD extends Currency
   case object USD extends Currency
+
+  import cats.implicits._
+
+  def fromString(currencyName: String): errors.Error Either Currency =
+    Currency.withNameInsensitiveEither(currencyName).leftMap {
+      case _: NoSuchMember[_] => CurrencyNotSupported(currencyName.some)
+    }
 }

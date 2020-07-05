@@ -12,25 +12,25 @@ import cats.effect.Sync
 
 class RatesRoutes[F[_]: Sync](rateAlg: programs.rates.Algebra[F]) extends Http4sDsl[F] {
 
-  import commons.http._
   import protocols._
   import converters._
+  import commons.http._
   import cats.implicits._
   import errors.Error
 
   private val httpRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
-    case GET -> Root :? FromParam(fromOpt) +& ToParam(toOpt) =>
+    case GET -> Root :? FromParam(fromEith) +& ToParam(toEith) =>
       val result = for {
-        from      <- Sync[F].fromOption(fromOpt, errors.Error.CurrencyNotSupported)
-        to        <- Sync[F].fromOption(toOpt, errors.Error.CurrencyNotSupported)
+        from      <- Sync[F].fromEither(fromEith)
+        to        <- Sync[F].fromEither(toEith)
         rateOrErr <- rateAlg.get(GetRatesRequest(from, to))
         rate      <- Sync[F].fromEither(rateOrErr)
         res       <- Ok(rate.toResponse)
       } yield res
 
       result.handleErrorWith {
-        case Error.CurrencyNotSupported =>
-          BadRequest("Currency is not supported.")
+        case Error.CurrencyNotSupported(curr) =>
+          BadRequest(s"Currency $curr is not supported.")
         case Error.RateLookupFailed(msg) =>
           InternalServerError(s"Rate lookup failed: $msg")
       }

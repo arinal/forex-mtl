@@ -1,11 +1,8 @@
 package forex
 package interps.http
 
-import forex.core.rates.domains.Price
-import forex.core.rates.domains.Currency
+import core.rates.domains.{Pair, Rate, Timestamp, Price, Currency}
 import core.rates.errors
-import core.rates.domains.{Pair, Rate}
-import forex.core.rates.domains.Timestamp
 
 import org.http4s.Uri
 import org.http4s.client.Client
@@ -15,7 +12,10 @@ import org.http4s.headers.Accept
 import org.http4s.MediaType
 import org.http4s.Status
 import io.circe.Decoder
+import cats.data.NonEmptyList
 import cats.effect.Sync
+import cats.Applicative
+import cats.implicits._
 import java.time.OffsetDateTime
 
 class PaidyOneFrameRateClient[F[_]: Sync](uri: Uri, client: Client[F])
@@ -23,42 +23,45 @@ class PaidyOneFrameRateClient[F[_]: Sync](uri: Uri, client: Client[F])
     with Http4sClientDsl[F] {
 
   import PaidyOneFrameRateClient._
-  import cats.implicits._
   import org.http4s.circe._
 
-  override def get(pair: Pair): F[errors.Error Either Rate] = {
+  override def get(pair: Pair): F[errors.Error Either Rate] =
     for {
-      either <- invoke(List(pair))
-      res = either
-        .map { rates =>
-          val rate = rates.head
-          Rate(Pair(rate.from, rate.to), Price(rate.price), Timestamp(rate.time_stamp))
-        }
-        .leftMap {
-          case ErrorResponse("Invalid Currency Pair") => errors.Error.CurrencyNotSupported
-          case ErrorResponse(msg)                     => errors.Error.OneFrameLookupFailed(msg)
-        }
+      either <- get(NonEmptyList.one(pair))
+      res    = either.map(_.head)
     } yield res
-  }
 
-  def invoke(pairs: List[Pair]): F[ErrorResponse Either List[RateResponse]] = {
-    client.fetch[ErrorResponse Either List[RateResponse]](
+  override def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] = {
+    val resp = client.fetch[ErrorResponse Either NonEmptyList[RateResponse]](
       GET(uri, Accept(MediaType.application.json))
     ) { res =>
       if (res.status == Status.Ok) {
-        res.asJsonDecode[List[RateResponse]].attempt.flatMap {
-          case Right(r) => r.asRight[ErrorResponse].pure[F]
+        res.asJsonDecode[NonEmptyList[RateResponse]].attempt.flatMap {
+          case Right(r) => r.asRight.pure[F]
           case Left(_)  => res.asJsonDecode[ErrorResponse].map(Left(_))
         }
-      } else ErrorResponse("Unexpected error").asLeft[List[RateResponse]].pure[F]
+      } else ErrorResponse("Unexpected error").asLeft.pure[F]
+    }
+    resp.map {
+      case Right(rateRespList) => rateRespList.map(_.toDomain).asRight
+      case Left(err)           => err.toDomain.asLeft
     }
   }
 }
 
 object PaidyOneFrameRateClient {
 
-  implicit val rateResponseDec: Decoder[RateResponse] = ???
-  implicit val errResponseDec: Decoder[ErrorResponse] = ???
+  import io.circe.generic.semiauto._
+
+  def apply[F[_]: Sync](uri: Uri, client: Client[F]): F[PaidyOneFrameRateClient[F]] =
+    Sync[F].delay(new PaidyOneFrameRateClient[F](uri, client))
+
+  implicit val currencyDec: Decoder[Currency] = Decoder[String].emap { currName =>
+    Currency.fromString(currName).leftMap(_ => s"Currency $currName is not supported")
+  }
+
+  implicit val rateResponseDec: Decoder[RateResponse] = deriveDecoder[RateResponse]
+  implicit val errResponseDec: Decoder[ErrorResponse] = deriveDecoder[ErrorResponse]
 
   final case class RateResponse(
       from: Currency,
@@ -67,7 +70,15 @@ object PaidyOneFrameRateClient {
       ask: BigDecimal,
       price: BigDecimal,
       time_stamp: OffsetDateTime
-  )
+  ) {
+    def toDomain =
+      Rate(Pair(from, to), Price(price), Timestamp(time_stamp))
+  }
 
-  final case class ErrorResponse(error: String)
+  final case class ErrorResponse(error: String) {
+    def toDomain: errors.Error = error match {
+      case "Invalid Currency Pair" => errors.Error.CurrencyNotSupported()
+      case msg                     => errors.Error.OneFrameLookupFailed(msg)
+    }
+  }
 }

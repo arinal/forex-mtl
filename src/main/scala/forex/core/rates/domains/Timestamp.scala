@@ -13,7 +13,7 @@ object Timestamp {
 
   def now[F[_]: Timer: Applicative](zoneId: ZoneId): F[Timestamp] =
     for {
-      epoch <- Timer[F].clock.monotonic(MILLISECONDS)
+      epoch   <- Timer[F].clock.monotonic(MILLISECONDS)
       instant = Instant.ofEpochMilli(epoch)
     } yield Timestamp(OffsetDateTime.ofInstant(instant, zoneId))
 }

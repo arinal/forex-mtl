@@ -2,6 +2,7 @@ package forex
 package app.http
 
 import core.rates.domains._
+import app.programs.rates.errors
 
 import org.http4s.QueryParamDecoder
 import org.http4s.dsl.impl.QueryParamDecoderMatcher
@@ -23,8 +24,11 @@ object protocols {
   implicit val timeStampEncoder: Encoder[Timestamp]   = deriveEncoder[Timestamp]
   implicit val responseEncoder: Encoder[RateResponse] = deriveEncoder[RateResponse]
 
-  private[http] implicit val currencyParam = QueryParamDecoder[String].map(Currency.withNameInsensitiveOption)
+  private[http] implicit val currencyParam = QueryParamDecoder[String].map { currName =>
+    import cats.implicits._
+    Currency.fromString(currName).leftMap(errors.toProgramsError)
+  }
 
-  object FromParam extends QueryParamDecoderMatcher[Option[Currency]]("from")
-  object ToParam   extends QueryParamDecoderMatcher[Option[Currency]]("to")
+  object FromParam extends QueryParamDecoderMatcher[errors.Error Either Currency]("from")
+  object ToParam   extends QueryParamDecoderMatcher[errors.Error Either Currency]("to")
 }
