@@ -3,21 +3,21 @@ package forex
 import config.AppConfig
 import app.http.RatesRoutes
 import interps.dummy.OneFrameDummyRate
+import interps.http.PaidyOneFrameRateClient
 
 import org.http4s.HttpRoutes
 import org.http4s.HttpApp
 import org.http4s.server.Router
 import org.http4s.server.middleware._
-import cats.effect.Sync
-import cats.effect.Timer
-import cats.effect.Concurrent
+import org.http4s.client.Client
+import io.chrisdavenport.log4cats.Logger
+import cats.effect._
 
-class Module[F[_]: Sync: Concurrent: Timer](
+class Module[F[_]: Sync: Concurrent: Timer: Logger](
     config: AppConfig,
     programAlg: app.programs.rates.Algebra[F]
 ) {
 
-  import scala.concurrent.duration._
   import org.http4s.implicits._
 
   private val routes = new RatesRoutes[F](programAlg).routes
@@ -28,7 +28,7 @@ class Module[F[_]: Sync: Concurrent: Timer](
     { http: HttpRoutes[F] => Timeout(config.http.timeout)(http) }
 
   private val loggers: HttpApp[F] => HttpApp[F] = {
-    { http: HttpApp[F] => RequestLogger.httpApp(true, true)(http)  } andThen
+    { http: HttpApp[F] => RequestLogger.httpApp(true, true)(http) } andThen
     { http: HttpApp[F] => ResponseLogger.httpApp(true, true)(http) }
   }
 
@@ -37,13 +37,17 @@ class Module[F[_]: Sync: Concurrent: Timer](
 
 object Module {
 
-  import cats.implicits._
   import org.http4s._
   import org.http4s.implicits._
+  import cats.implicits._
 
-  def apply[F[_]: Sync: Concurrent: Timer](config: AppConfig) =
+  def apply[F[_]: ContextShift: ConcurrentEffect: Timer: Logger](
+      config: AppConfig,
+      client: Client[F]
+  ) =
     for {
-      rateAlg <- OneFrameDummyRate[F]
+      // rateAlg <- OneFrameDummyRate[F]
+      rateAlg <- PaidyOneFrameRateClient[F](config.oneFrameUri, client)
       program = app.programs.rates.Algebra[F](rateAlg)
     } yield new Module(config, program)
 }
