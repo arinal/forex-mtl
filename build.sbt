@@ -21,5 +21,5 @@ lazy val root = (project in file("."))
       logback % Runtime,
       enumeratum,
       pureConfig
-    )
+    ) :+ compilerPlugin(contextApplied)
   )

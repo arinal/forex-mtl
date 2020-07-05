@@ -1,5 +1,4 @@
 package forex
-
 package interps.http
 
 import core.rates.domains.{Pair, Rate, Timestamp, Price, Currency}
@@ -52,13 +51,16 @@ class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Clie
   private def getRaw(pairs: NonEmptyList[Pair]) = {
     val request = mkRequest(pairs)
     Logger[F].info(s"Invoking to Paidy one frame $request") >>
-      client.fetch[ErrorResponse Either NonEmptyList[RateResponse]](request) { res =>
-        if (res.status == Status.Ok) {
-          res.asJsonDecode[NonEmptyList[RateResponse]].attempt.flatMap {
+      client.fetch[ErrorResponse Either NonEmptyList[RateResponse]](request) { response =>
+        if (response.status == Status.Ok) {
+          response.asJsonDecode[NonEmptyList[RateResponse]].attempt.flatMap {
             case Right(r) => r.asRight.pure[F]
-            case Left(_)  => res.asJsonDecode[ErrorResponse].map(Left(_))
+            case Left(_)  => response.asJsonDecode[ErrorResponse].map(Left(_))
           }
-        } else ErrorResponse("Unexpected error").asLeft.pure[F]
+        } else {
+          Logger[F].error(s"Unexpected error.\nRequest:$request\nResponse:$response") >>
+            ErrorResponse("Unexpected error. ").asLeft.pure[F]
+        }
       }
   }
 }
@@ -71,5 +73,5 @@ object PaidyOneFrameRateClient {
       oneFrameUri: Uri,
       client: Client[F]
   ): F[PaidyOneFrameRateClient[F]] =
-    Sync[F].delay(new PaidyOneFrameRateClient[F](oneFrameUri, client))
+    F.delay(new PaidyOneFrameRateClient[F](oneFrameUri, client))
 }

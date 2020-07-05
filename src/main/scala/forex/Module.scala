@@ -27,10 +27,9 @@ class Module[F[_]: Sync: Concurrent: Timer: Logger](
     { http: HttpRoutes[F] => CORS(http, CORS.DefaultCORSConfig) } andThen
     { http: HttpRoutes[F] => Timeout(config.http.timeout)(http) }
 
-  private val loggers: HttpApp[F] => HttpApp[F] = {
-    { http: HttpApp[F] => RequestLogger.httpApp(true, true)(http) } andThen
+  private val loggers: HttpApp[F] => HttpApp[F] =
+    { http: HttpApp[F] => RequestLogger.httpApp(true, true)(http)  } andThen
     { http: HttpApp[F] => ResponseLogger.httpApp(true, true)(http) }
-  }
 
   val httpApp: HttpApp[F] = loggers(middleware(routes).orNotFound)
 }
@@ -44,10 +43,11 @@ object Module {
   def apply[F[_]: ContextShift: ConcurrentEffect: Timer: Logger](
       config: AppConfig,
       client: Client[F]
-  ) =
+  ): F[Module[F]] =
     for {
-      // rateAlg <- OneFrameDummyRate[F]
-      rateAlg <- PaidyOneFrameRateClient[F](config.oneFrameUri, client)
+      rateAlg <-
+        // OneFrameDummyRate[F]
+        PaidyOneFrameRateClient[F](config.oneFrameUri, client)
       program = app.programs.rates.Algebra[F](rateAlg)
     } yield new Module(config, program)
 }

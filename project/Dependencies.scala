@@ -33,5 +33,6 @@ object Dependencies {
   val logback    = "ch.qos.logback"        % "logback-classic"  % versions.logback
   val log4cats   = "io.chrisdavenport"     %% "log4cats-slf4j"  % versions.log4cats
 
-  val kindProjector = "org.typelevel" %% "kind-projector" % versions.kindProjector
+  val kindProjector  = "org.typelevel"  %% "kind-projector"  % versions.kindProjector
+  val contextApplied = "org.augustjune" %% "context-applied" % "0.1.3"
 }

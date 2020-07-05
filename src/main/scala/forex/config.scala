@@ -1,14 +1,14 @@
 package forex
 
-import cats.effect.Sync
 import org.http4s.Uri
 import org.http4s.ParseFailure
-import com.typesafe.config.ConfigException.Parse
 import pureconfig.ConfigReader
 import pureconfig.ConfigSource
 import pureconfig.error.FailureReason
 import pureconfig.error.CannotConvert
+import cats.effect.Sync
 import scala.concurrent.duration.FiniteDuration
+import scala.util.Try
 
 object config {
 
@@ -28,5 +28,5 @@ object config {
     * @param path the property path inside the default configuration
   **/
   def load[F[_]: Sync](path: String): F[AppConfig] =
-    Sync[F].delay(ConfigSource.default.at(path).loadOrThrow[AppConfig])
+    F.fromTry(Try(ConfigSource.default.at(path).loadOrThrow[AppConfig]))
 }
