@@ -6,6 +6,6 @@ object errors {
 
   object Error {
     final case class CurrencyNotSupported(requestedCurr: Option[String] = None) extends Error
-    final case class OneFrameLookupFailed(msg: String) extends Error
+    final case class RateLookupFailed(msg: String) extends Error
   }
 }

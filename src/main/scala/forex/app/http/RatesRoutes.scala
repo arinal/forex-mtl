@@ -3,10 +3,10 @@ package http
 
 import programs.rates.protocol.GetRatesRequest
 import programs.rates.errors
-
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.http4s.HttpRoutes
+import org.http4s.EntityEncoder
 import io.chrisdavenport.log4cats.Logger
 import cats.Defer
 import cats.effect.Sync
@@ -20,6 +20,7 @@ class RatesRoutes[F[_]: Sync: Logger](rateAlg: programs.rates.Algebra[F]) extend
   import cats.implicits._
 
   private val httpRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
+    // GET /rates/(from, to)
     case GET -> Root :? FromParam(fromEith) +& ToParam(toEith) =>
       val result = for {
         from      <- F.fromEither(fromEith)
@@ -30,13 +31,16 @@ class RatesRoutes[F[_]: Sync: Logger](rateAlg: programs.rates.Algebra[F]) extend
       } yield res
 
       result.handleErrorWith {
-        case Error.CurrencyNotSupported(curr) => BadRequest(s"Currency $curr is not supported.")
+        case Error.CurrencyNotSupported(curr) =>
+          BadRequest(s"Currency $curr is not supported.")
         case Error.RateLookupFailed(msg) =>
-          Logger[F].error("Internal error: $msg") >> InternalServerError(
-            s"Rate lookup failed: $msg"
-          )
-        case err => Logger[F].error("Internal error: ${err.getMessage}") >> InternalServerError()
+          Logger[F].error("Internal error: $msg") >> InternalServerError(s"Rate lookup failed: $msg")
+        case err =>
+          Logger[F].error("Internal error: ${err.getMessage}") >> InternalServerError()
       }
+
+    // GET /rates  - get all supported combinations of rates
+    case GET -> Root => Ok(rateAlg.allRates.compile.toList.map(r => r.map(_.toResponse)))
   }
 
   val routes = Router("/rates" -> httpRoutes)

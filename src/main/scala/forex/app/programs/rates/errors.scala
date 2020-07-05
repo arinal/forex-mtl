@@ -14,7 +14,7 @@ object errors {
   }
 
   def toProgramsError(error: CoreError): Error = error match {
-    case CoreError.OneFrameLookupFailed(msg)  => Error.RateLookupFailed(msg)
+    case CoreError.RateLookupFailed(msg)  => Error.RateLookupFailed(msg)
     case CoreError.CurrencyNotSupported(curr) => Error.CurrencyNotSupported(curr)
   }
 }

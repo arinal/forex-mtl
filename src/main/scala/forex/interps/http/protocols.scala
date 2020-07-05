@@ -38,7 +38,7 @@ object protocols {
   final case class ErrorResponse(error: String) {
     def toDomain: errors.Error = error match {
       case "Invalid Currency Pair" => errors.Error.CurrencyNotSupported()
-      case msg                     => errors.Error.OneFrameLookupFailed(msg)
+      case msg                     => errors.Error.RateLookupFailed(msg)
     }
   }
 

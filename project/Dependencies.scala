@@ -13,6 +13,7 @@ object Dependencies {
     val log4cats      = "1.1.1"
     val enumeratum    = "1.6.1"
     val kindProjector = "0.11.0"
+    val weaverTest    = "0.4.2-RC1"
   }
 
   val cats       = "org.typelevel" %% "cats-core"   % versions.cats
@@ -30,9 +31,13 @@ object Dependencies {
 
   val enumeratum = "com.beachape"          %% "enumeratum-cats" % versions.enumeratum
   val pureConfig = "com.github.pureconfig" %% "pureconfig"      % versions.pureConfig
-  val logback    = "ch.qos.logback"        % "logback-classic"  % versions.logback
   val log4cats   = "io.chrisdavenport"     %% "log4cats-slf4j"  % versions.log4cats
+  val logback    = "ch.qos.logback"        % "logback-classic"  % versions.logback
 
-  val kindProjector  = "org.typelevel"  %% "kind-projector"  % versions.kindProjector
-  val contextApplied = "org.augustjune" %% "context-applied" % "0.1.3"
+  val weaverTest  = "com.disneystreaming" %% "weaver-framework"  % versions.weaverTest % Test
+  val weaverCheck = "com.disneystreaming" %% "weaver-scalacheck" % versions.weaverTest % Test
+
+  val kindProjector  = "org.typelevel"  %% "kind-projector"     % versions.kindProjector
+  val contextApplied = "org.augustjune" %% "context-applied"    % "0.1.3"
+  val betterMonadic  = "com.olegpy"     %% "better-monadic-for" % "0.3.1"
 }

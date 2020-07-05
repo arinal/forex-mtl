@@ -37,6 +37,14 @@ class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Clie
     }
   }
 
+  override def allRates: fs2.Stream[F, Rate] = {
+    fs2.Stream
+      .eval(get(Rate.allCurrencyPairs))
+      .filter(_.isRight)
+      .map(_.right.get.toList)
+      .flatMap(fs2.Stream.apply)
+  }
+
   private def mkRequest(pairs: NonEmptyList[Pair]): Request[F] = {
     val pairStrings = pairs.map { pair => s"${pair.from}${pair.to}" }.toList
     val query       = Query.fromMap(Map("pair" -> pairStrings))
@@ -57,10 +65,9 @@ class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Clie
             case Right(r) => r.asRight.pure[F]
             case Left(_)  => response.asJsonDecode[ErrorResponse].map(Left(_))
           }
-        } else {
+        } else
           Logger[F].error(s"Unexpected error.\nRequest:$request\nResponse:$response") >>
             ErrorResponse("Unexpected error. ").asLeft.pure[F]
-        }
       }
   }
 }

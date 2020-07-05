@@ -20,6 +20,9 @@ lazy val root = (project in file("."))
       log4cats,
       logback % Runtime,
       enumeratum,
-      pureConfig
-    ) :+ compilerPlugin(contextApplied)
+      pureConfig,
+      weaverTest,
+      weaverCheck
+    ) ++ List(contextApplied, betterMonadic).map(compilerPlugin(_)),
+    testFrameworks += new TestFramework("weaver.framework.TestFramework")
   )

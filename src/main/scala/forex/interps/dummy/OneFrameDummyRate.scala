@@ -3,7 +3,7 @@ package interps.dummy
 
 import core.rates
 import core.rates.errors.Error
-import rates.domains.{Pair, Price, Rate, Timestamp}
+import rates.domains.{Pair, Price, Rate, Timestamp, Currency}
 
 import cats.effect.Timer
 import cats.effect.Sync
@@ -19,7 +19,13 @@ class OneFrameDummyRate[F[_]: Sync: Timer](zoneId: ZoneId) extends rates.Algebra
       rate = Rate(pair, Price.ofInt(100), now)
     } yield rate.asRight[Error]
 
-  override def get(pairs: NonEmptyList[Pair]): F[Error Either NonEmptyList[Rate]] = ???
+  override def get(pairs: NonEmptyList[Pair]): F[Error Either NonEmptyList[Rate]] =
+    for {
+      results <- pairs.traverse(get)
+      res     = results.traverse(identity)
+    } yield res
+
+  override def allRates: fs2.Stream[F, Rate] = ???
 }
 
 object OneFrameDummyRate {
