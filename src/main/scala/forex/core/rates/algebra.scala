@@ -23,8 +23,16 @@ trait Algebra[F[_]] {
 
   /**
    * Get all rates for every combinations of supported currencies.
-   * Even though more aggressive than its get pairs counterparts, this also might counted as 1 request.
+   * Even though this operation is more aggressive than its get pairs counterparts (by returning all [[Currency]]),
+   * this operation also might counted as 1 request.
+   * The implementation is a non-optimized version and only relies on another get(pairs) method.
+   * The implementator of this algebra are advised to override this method.
    * @return stream of all possible combinations of [[Rate]]
   **/
-  def allRates: fs2.Stream[F, Rate]
+  def allRates: fs2.Stream[F, Rate] =
+    fs2.Stream
+      .eval(get(Rate.allCurrencyPairs))
+      .filter(_.isRight)
+      .map(_.right.get.toList)
+      .flatMap(fs2.Stream.apply)
 }

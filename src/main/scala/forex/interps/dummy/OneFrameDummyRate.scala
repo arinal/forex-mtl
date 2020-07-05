@@ -24,8 +24,6 @@ class OneFrameDummyRate[F[_]: Sync: Timer](zoneId: ZoneId) extends rates.Algebra
       results <- pairs.traverse(get)
       res     = results.traverse(identity)
     } yield res
-
-  override def allRates: fs2.Stream[F, Rate] = ???
 }
 
 object OneFrameDummyRate {

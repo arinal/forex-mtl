@@ -30,20 +30,11 @@ class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Clie
       res    = either.map(_.head)
     } yield res
 
-  override def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] = {
+  override def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
     getRaw(pairs).map {
       case Right(rateRespList) => rateRespList.map(_.toDomain).asRight
       case Left(err)           => err.toDomain.asLeft
     }
-  }
-
-  override def allRates: fs2.Stream[F, Rate] = {
-    fs2.Stream
-      .eval(get(Rate.allCurrencyPairs))
-      .filter(_.isRight)
-      .map(_.right.get.toList)
-      .flatMap(fs2.Stream.apply)
-  }
 
   private def mkRequest(pairs: NonEmptyList[Pair]): Request[F] = {
     val pairStrings = pairs.map { pair => s"${pair.from}${pair.to}" }.toList
