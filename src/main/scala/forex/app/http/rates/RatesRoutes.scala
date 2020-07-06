@@ -1,5 +1,5 @@
 package forex.app
-package http
+package http.rates
 
 import programs.rates.protocol.GetRatesRequest
 import programs.rates.errors
@@ -39,7 +39,7 @@ class RatesRoutes[F[_]: Sync: Logger](rateAlg: programs.rates.Algebra[F]) extend
           Logger[F].error("Internal error: ${err.getMessage}") >> InternalServerError()
       }
 
-    // GET /rates  - get all supported combinations of rates
+    // GET /rates - get all supported combinations of rates
     case GET -> Root => Ok(rateAlg.allRates.compile.toList.map(r => r.map(_.toResponse)))
   }
 

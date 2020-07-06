@@ -1,12 +1,18 @@
 package forex
 
-import org.http4s.server.blaze.BlazeServerBuilder
+import boot.config._
+import boot.Resources
+import core.rates.domains.Pair
+import core.rates.domains.Rate
 
-import cats.effect._
-import cats.implicits._
+import org.http4s.server.blaze.BlazeServerBuilder
 import io.chrisdavenport.log4cats.Logger
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
-import forex.config.AppConfig
+import org.http4s.client.Client
+import org.http4s.client.blaze.BlazeClientBuilder
+import cats.effect.concurrent.Ref
+import cats.effect._
+import cats.implicits._
 
 object Main extends IOApp {
 
@@ -14,18 +20,13 @@ object Main extends IOApp {
 
   import org.http4s.client.Client
   import org.http4s.client.blaze.BlazeClientBuilder
-  import scala.concurrent.ExecutionContext
-
-  def mkResource[F[_]: ContextShift: ConcurrentEffect](config: AppConfig): Resource[F, Client[F]] =
-    BlazeClientBuilder[F](ExecutionContext.global).resource
 
   override def run(args: List[String]): IO[ExitCode] =
-    config.load[IO]("app").flatMap { cfg =>
-      mkResource(cfg).use { client =>
+    load[IO]("app").flatMap { cfg =>
+      Resources.create.use { res =>
         for {
-          cfg    <- config.load[IO]("app")
           _      <- Logger[IO].info(s"Loaded config $cfg")
-          module <- Module[IO](cfg, client)
+          module <- boot.Module[IO](cfg, res.client)
           _ <- BlazeServerBuilder[IO]
                 .bindHttp(cfg.http.port, cfg.http.host)
                 .withHttpApp(module.httpApp)
@@ -36,3 +37,4 @@ object Main extends IOApp {
       }
     }
 }
+

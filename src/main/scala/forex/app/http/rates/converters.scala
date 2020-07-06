@@ -1,5 +1,5 @@
 package forex
-package app.http
+package app.http.rates
 
 import protocols.RateResponse
 import core.rates.domains.Rate

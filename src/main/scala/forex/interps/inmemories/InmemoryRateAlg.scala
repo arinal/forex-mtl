@@ -10,6 +10,11 @@ import cats.implicits._
 import cats.effect.Sync
 import scala.concurrent.duration.FiniteDuration
 
+/**
+ * Implementation of [[core.rates.Algebra]] using in-memory lookup data.
+ * Easily mis-judged as one of dummy implementation, if paired with another process
+ * which updates the cache, this class might be quite handy.
+**/
 class InmemoryRateAlg[F[_]: Sync](mapRef: Ref[F, Map[Pair, Rate]]) extends rates.Algebra[F] {
 
   override def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =

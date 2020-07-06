@@ -1,5 +1,5 @@
 package forex
-package app.http
+package app.http.rates
 
 import core.rates.domains._
 import app.programs.rates.errors

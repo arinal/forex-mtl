@@ -1,4 +1,5 @@
 package forex
+package boot
 
 import org.http4s.Uri
 import org.http4s.ParseFailure

@@ -27,6 +27,7 @@ class OneFrameDummyRate[F[_]: Sync: Timer](zoneId: ZoneId) extends rates.Algebra
 }
 
 object OneFrameDummyRate {
+
   def apply[F[_]: Sync: Timer] =
     F.delay(ZoneId.systemDefault())
       .map(new OneFrameDummyRate(_))

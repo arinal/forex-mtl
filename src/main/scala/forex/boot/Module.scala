@@ -1,7 +1,8 @@
 package forex
+package boot
 
 import config.AppConfig
-import app.http.RatesRoutes
+import app.http.rates.RatesRoutes
 import interps.dummy.OneFrameDummyRate
 import interps.http.PaidyOneFrameRateClient
 
