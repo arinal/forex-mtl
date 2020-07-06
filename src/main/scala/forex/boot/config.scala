@@ -16,8 +16,17 @@ object config {
   import pureconfig.generic.auto._
   import cats.implicits._
 
-  case class AppConfig(http: HttpConfig, oneFrameUri: Uri)
+  case class AppConfig(
+      http: HttpConfig,
+      oneFrame: OneFrameConfig
+  )
+
   case class HttpConfig(host: String, port: Int, timeout: FiniteDuration)
+
+  case class OneFrameConfig(
+      uri: Uri,           // uri for one frame server
+      maxInvocations: Int // maximum invocation in a day
+  )
 
   implicit val uriReader: ConfigReader[Uri] = ConfigReader[String].emap { url =>
     Uri.fromString(url).leftMap {

@@ -4,12 +4,23 @@ package app.programs.rates
 import errors.Error
 import core.rates.domains.Rate
 import forex.core.rates.domains.Pair
+import scala.concurrent.duration.FiniteDuration
 
 import cats.Functor
 
 trait Algebra[F[_]] {
+
+  import scala.concurrent.duration._
+
   def get(request: protocol.GetRatesRequest): F[Error Either Rate]
   def allRates: fs2.Stream[F, Rate]
+
+  /**
+   * @param maxInvocations maximum served requests allowed for OneFrame server.
+   * @return duration to wait for every update
+  **/
+  def updateEvery(maxInvocations: Int): FiniteDuration =
+    (60 * 60 * 24.0 / maxInvocations).seconds
 }
 
 object Algebra {
@@ -26,6 +37,5 @@ object Algebra {
         } yield appRes
 
       override def allRates: fs2.Stream[F, Rate] = rateAlg.allRates
-
     }
 }

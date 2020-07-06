@@ -7,6 +7,6 @@ object CurrencySuite extends SimpleIOSuite {
 
   pureTest("Combinations from currency set of 9 are 72") {
     val combinationLength = 72 // 9! / (9 - 2)!
-    expect(Currency.allCombinations.length == combinationLength)
+    expect(Currency.allCombinationsLength == combinationLength)
   }
 }

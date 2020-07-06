@@ -34,7 +34,7 @@ class RatesRoutes[F[_]: Sync: Logger](rateAlg: programs.rates.Algebra[F]) extend
         case Error.CurrencyNotSupported(curr) =>
           BadRequest(s"Currency $curr is not supported.")
         case Error.RateLookupFailed(msg) =>
-          Logger[F].error("Internal error: $msg") >> InternalServerError(s"Rate lookup failed: $msg")
+          Logger[F].error(s"Internal error: $msg") >> InternalServerError(s"Rate lookup failed: $msg")
         case err =>
           Logger[F].error("Internal error: ${err.getMessage}") >> InternalServerError()
       }

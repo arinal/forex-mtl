@@ -30,6 +30,8 @@ object Currency extends Enum[Currency] with CatsEnum[Currency] {
       case _ => CurrencyNotSupported(currencyName.some)
     }
 
+  lazy val allCombinationsLength = allCombinations.length
+
   def allCombinations: NonEmptyList[(Currency, Currency)] = {
     val pairs = values
       .permutations
