@@ -23,21 +23,22 @@ object Main extends IOApp {
           _   <- Logger[IO].info(s"Loaded config $cfg")
           mod <- boot.Module[IO](cfg, res.client, res.rateRef)
 
-          _ <- app.stream.updater
-                .stream(
-                  mod.programInMemoryAlg.updateEvery(cfg.oneFrame.maxInvocations),
-                  mod.programClientAlg,
-                  res.rateRef
-                )
-                .compile
-                .drain
-                .start
-          _ <- BlazeServerBuilder[IO]
-                .bindHttp(cfg.http.port, cfg.http.host)
-                .withHttpApp(mod.httpApp)
-                .serve
-                .compile
-                .drain
+          fib <- app.stream.updater
+                   .stream(
+                     mod.programCacheAlg.updateEvery(cfg.oneFrame.maxInvocations),
+                     mod.programClientAlg,
+                     res.rateRef
+                   )
+                   .compile
+                   .drain
+                   .start
+          _   <- BlazeServerBuilder[IO]
+                   .bindHttp(cfg.http.port, cfg.http.host)
+                   .withHttpApp(mod.httpApp)
+                   .serve
+                   .compile
+                   .drain
+          _   <- fib.join
         } yield ExitCode.Success
       }
     }

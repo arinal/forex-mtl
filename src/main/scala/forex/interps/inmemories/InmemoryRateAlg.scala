@@ -13,7 +13,8 @@ import scala.concurrent.duration.FiniteDuration
 /**
  * Implementation of [[core.rates.Algebra]] using in-memory lookup data.
  * Easily mis-judged as one of dummy implementation, if paired with another process
- * which updates the cache, this class might be quite handy.
+ * which updates the cache regularly, this class might be quite handy.
+ * @param mapRef atomic reference which contains our cached rates keyed by pair.
 **/
 class InmemoryRateAlg[F[_]: Sync](mapRef: Ref[F, Map[Pair, Rate]]) extends rates.Algebra[F] {
 
@@ -28,13 +29,13 @@ class InmemoryRateAlg[F[_]: Sync](mapRef: Ref[F, Map[Pair, Rate]]) extends rates
 
   private def getByPairs(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
     for {
-      rateMap  <- mapRef.get
+      rateMap <- mapRef.get
       rateList = pairs.toList.flatMap(p => rateMap.get(p))
       ratesOpt = NonEmptyList.fromList(rateList)
-      result = Either.fromOption(
-        ratesOpt,
-        errors.Error.RateLookupFailed("Currency not found in cache")
-      )
+      result   = Either.fromOption(
+                   ratesOpt,
+                   errors.Error.RateLookupFailed("Currency not found in cache")
+                 )
     } yield result
 }
 
@@ -42,6 +43,7 @@ object InmemoryRateAlg {
 
   /**
    * @param mapRef a map of pair and its rate wrapped inside a pure atomic mutable reference [[Ref]]
+   * mapRef can be shared with other components which might update the state.
    * @return new instance of [[InmemoryRateAlg]] wrapped in a generic effect [[F]].
   **/
   def apply[F[_]: Sync](mapRef: Ref[F, Map[Pair, Rate]]): F[InmemoryRateAlg[F]] =

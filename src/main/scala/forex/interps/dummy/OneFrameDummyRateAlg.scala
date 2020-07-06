@@ -11,24 +11,24 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import java.time.ZoneId
 
-class OneFrameDummyRate[F[_]: Sync: Timer](zoneId: ZoneId) extends rates.Algebra[F] {
+class OneFrameDummyRateAlg[F[_]: Sync: Timer](zoneId: ZoneId) extends rates.Algebra[F] {
 
   override def get(pair: Pair): F[Error Either Rate] =
     for {
-      now  <- Timestamp.now[F](zoneId)
+      now <- Timestamp.now[F](zoneId)
       rate = Rate(pair, Price.ofInt(100), now)
     } yield rate.asRight[Error]
 
   override def get(pairs: NonEmptyList[Pair]): F[Error Either NonEmptyList[Rate]] =
     for {
       results <- pairs.traverse(get)
-      res     = results.traverse(identity)
+      res      = results.traverse(identity)
     } yield res
 }
 
-object OneFrameDummyRate {
+object OneFrameDummyRateAlg {
 
   def apply[F[_]: Sync: Timer] =
     F.delay(ZoneId.systemDefault())
-      .map(new OneFrameDummyRate(_))
+      .map(new OneFrameDummyRateAlg(_))
 }

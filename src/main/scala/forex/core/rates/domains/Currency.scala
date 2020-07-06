@@ -18,10 +18,15 @@ object Currency extends Enum[Currency] with CatsEnum[Currency] {
   case object CHF extends Currency
   case object EUR extends Currency
   case object GBP extends Currency
+  case object MYR extends Currency
   case object NZD extends Currency
+  case object IDR extends Currency
+  case object KRW extends Currency
   case object JPY extends Currency
   case object SGD extends Currency
+  case object THB extends Currency
   case object USD extends Currency
+  case object VUV extends Currency
 
   import cats.implicits._
 
@@ -32,16 +37,11 @@ object Currency extends Enum[Currency] with CatsEnum[Currency] {
 
   lazy val allCombinationsLength = allCombinations.length
 
-  def allCombinations: NonEmptyList[(Currency, Currency)] = {
-    val pairs = values
-      .permutations
-      .map { pair => (pair(0), pair(1)) }
-      .distinct
-      .toList
-
-    // fromListUnsafe is safe here, unless pairs is empty.
+  lazy val allCombinations: NonEmptyList[(Currency, Currency)] = {
+    val pairs = commons.collections.permutationOf2(values.toSet).toList
+    // fromListUnsafe is safe here because pairs is guaranteed non empty.
     // We can guarantee pairs unemptiness since findValues result
-    // is hardcoded (enum members)
+    // is hardcoded as enum members.
     NonEmptyList.fromListUnsafe(pairs)
   }
 }

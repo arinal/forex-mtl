@@ -4,10 +4,7 @@ package interps.http
 import core.rates.domains.{Pair, Rate, Timestamp, Price, Currency}
 import core.rates.errors
 
-import org.http4s.Uri
-import org.http4s.Query
-import org.http4s.MediaType
-import org.http4s.Status
+import org.http4s._
 import org.http4s.Method._
 import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
@@ -36,10 +33,11 @@ object protocols {
   }
 
   final case class ErrorResponse(error: String) {
-    def toDomain: errors.Error = error match {
-      case "Invalid Currency Pair" => errors.Error.CurrencyNotSupported()
-      case msg                     => errors.Error.RateLookupFailed(msg)
-    }
+    def toDomain: errors.Error =
+      error match {
+        case "Invalid Currency Pair" => errors.Error.CurrencyNotSupported()
+        case msg                     => errors.Error.RateLookupFailed(msg)
+      }
   }
 
   implicit val currencyDec: Decoder[Currency] = Decoder[String].emap { currName =>

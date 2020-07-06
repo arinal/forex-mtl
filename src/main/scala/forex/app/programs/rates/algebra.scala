@@ -16,6 +16,8 @@ trait Algebra[F[_]] {
   def allRates: fs2.Stream[F, Rate]
 
   /**
+   * How much time to wait between invocation to one frame server given max invocations
+   * they preserve?
    * @param maxInvocations maximum served requests allowed for OneFrame server.
    * @return duration to wait for every update
   **/

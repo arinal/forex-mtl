@@ -15,7 +15,7 @@ class RatesRoutes[F[_]: Sync: Logger](rateAlg: programs.rates.Algebra[F]) extend
 
   import protocols._
   import converters._
-  import commons.http._
+  import commons.http.codecs._
   import errors.Error
   import cats.implicits._
 

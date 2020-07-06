@@ -33,6 +33,6 @@ trait Algebra[F[_]] {
     fs2.Stream
       .eval(get(Rate.allCurrencyPairs))
       .filter(_.isRight)
-      .map(_.right.get.toList)
+      .map(_.right.get.toList) // get is safe here, since it's guaranted right by previous filter operation
       .flatMap(fs2.Stream.apply)
 }

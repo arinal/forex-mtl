@@ -17,8 +17,11 @@ import cats.implicits._
 import cats.data.NonEmptyList
 import java.time.OffsetDateTime
 
-class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Client[F])
-    extends core.rates.Algebra[F]
+class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
+    oneFrameUri: Uri,
+    client: Client[F],
+    token: String
+) extends core.rates.Algebra[F]
     with Http4sClientDsl[F] {
 
   import protocols._
@@ -27,7 +30,7 @@ class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Clie
   override def get(pair: Pair): F[errors.Error Either Rate] =
     for {
       either <- get(NonEmptyList.one(pair))
-      res    = either.map(_.head)
+      res     = either.map(_.head)
     } yield res
 
   override def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
@@ -43,7 +46,7 @@ class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Clie
     Request[F](
       uri = uri,
       headers = Headers
-        .of(Accept(MediaType.application.json), Header("token", "10dc303535874aeccc86a8251e6992f5"))
+        .of(Accept(MediaType.application.json), Header("token", token))
     )
   }
 
@@ -63,13 +66,14 @@ class PaidyOneFrameRateClient[F[_]: Sync: Logger](oneFrameUri: Uri, client: Clie
   }
 }
 
-object PaidyOneFrameRateClient {
+object PaidyOneFrameRateClientAlg {
 
   import io.circe.generic.semiauto._
 
   def apply[F[_]: Sync: Logger](
       oneFrameUri: Uri,
-      client: Client[F]
-  ): F[PaidyOneFrameRateClient[F]] =
-    F.delay(new PaidyOneFrameRateClient[F](oneFrameUri, client))
+      client: Client[F],
+      token: String
+  ): F[PaidyOneFrameRateClientAlg[F]] =
+    F.delay(new PaidyOneFrameRateClientAlg[F](oneFrameUri, client, token))
 }

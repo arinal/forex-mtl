@@ -5,8 +5,9 @@ import weaver._
 
 object CurrencySuite extends SimpleIOSuite {
 
-  pureTest("Combinations from currency set of 9 are 72") {
-    val combinationLength = 72 // 9! / (9 - 2)!
+  pureTest(s"Currency 'allCombinationsLength' are correct") {
+    // 14! / (14 - 2)! == 14 * 13
+    val combinationLength = 182
     expect(Currency.allCombinationsLength == combinationLength)
   }
 }
