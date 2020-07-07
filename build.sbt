@@ -26,3 +26,9 @@ lazy val root = (project in file("."))
     ) ++ List(contextApplied, betterMonadic).map(compilerPlugin(_)),
     testFrameworks += new TestFramework("weaver.framework.TestFramework")
   )
+  .enablePlugins(DockerPlugin, AshScriptPlugin)
+  .settings(
+    dockerBaseImage := "openjdk:8-alpine",
+    dockerExposedPorts ++= Seq(9090),
+    dockerUpdateLatest := true
+  )

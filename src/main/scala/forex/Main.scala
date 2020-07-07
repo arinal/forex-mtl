@@ -20,13 +20,13 @@ object Main extends IOApp {
     load[IO]("").flatMap { cfg =>
       Resources.create.use { res =>
         for {
-          _   <- Logger[IO].info(s"Loaded config $cfg")
-          mod <- boot.Module[IO](cfg, res.client, res.rateRef)
+          _      <- Logger[IO].info(s"Loaded config $cfg")
+          module <- boot.Module[IO](cfg, res.client, res.rateRef)
 
           fib <- app.stream.updater
                    .stream(
-                     mod.programCacheAlg.updateEvery(cfg.oneFrame.maxInvocations),
-                     mod.programClientAlg,
+                     module.programCacheAlg.updateEvery(cfg.oneFrame.maxInvocations),
+                     module.programClientAlg,
                      res.rateRef
                    )
                    .compile
@@ -34,11 +34,11 @@ object Main extends IOApp {
                    .start
           _   <- BlazeServerBuilder[IO]
                    .bindHttp(cfg.http.port, cfg.http.host)
-                   .withHttpApp(mod.httpApp)
+                   .withHttpApp(module.httpApp)
                    .serve
                    .compile
                    .drain
-          _   <- fib.join
+          _   <- fib.cancel
         } yield ExitCode.Success
       }
     }

@@ -1,7 +1,18 @@
-version: '3.4'
+version: "3.6"
+
 services:
+
   oneframe:
-    restart: always
-    image: paidyinc/one-frame
+    image: "paidyinc/one-frame:v0.1"
     ports:
       - "8080:8080"
+
+  forex:
+    image: forex
+    depends_on:
+      - oneframe
+    ports:
+      - "9090:9090"
+    environment:
+      - ONEFRAME_ACCESS_TOKEN=10dc303535874aeccc86a8251e6992f5
+      - ONEFRAME_URI=http://oneframe:8080
