@@ -3,7 +3,7 @@ package interps.dummy
 
 import core.rates
 import core.rates.errors.Error
-import rates.domains.{Pair, Price, Rate, Timestamp, Currency}
+import rates.domains.{Pair, Price, Rate, Timestamp}
 
 import cats.effect.Timer
 import cats.effect.Sync

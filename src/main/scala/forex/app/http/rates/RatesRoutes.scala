@@ -6,9 +6,7 @@ import programs.rates.errors
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.http4s.HttpRoutes
-import org.http4s.EntityEncoder
 import io.chrisdavenport.log4cats.Logger
-import cats.Defer
 import cats.effect.Sync
 
 class RatesRoutes[F[_]: Sync: Logger](rateAlg: programs.rates.Algebra[F]) extends Http4sDsl[F] {

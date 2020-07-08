@@ -2,15 +2,11 @@ package forex
 
 import boot.config._
 import boot.Resources
-import core.rates.domains.Pair
-import core.rates.domains.Rate
 
 import org.http4s.server.blaze.BlazeServerBuilder
 import io.chrisdavenport.log4cats.Logger
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
-import cats.effect.concurrent.Ref
 import cats.effect._
-import cats.implicits._
 
 object Main extends IOApp {
 

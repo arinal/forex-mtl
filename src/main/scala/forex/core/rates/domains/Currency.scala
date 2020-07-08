@@ -3,9 +3,7 @@ package domains
 
 import forex.core.rates.errors.Error.CurrencyNotSupported
 import cats.data.NonEmptyList
-import cats.Show
 import enumeratum._
-import scala.util.Try
 
 sealed trait Currency extends EnumEntry
 

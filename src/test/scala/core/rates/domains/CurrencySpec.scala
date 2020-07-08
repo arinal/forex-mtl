@@ -17,7 +17,7 @@ object CurrencySpec extends SimpleIOSuite with IOCheckers {
     expect(Currency.allCombinationsLength == combinationLength)
   }
 
-  simpleTest("Currency permutation is correct") {
+  simpleTest("Currency permutations are correct") {
 
     val currencies = Currency.allCombinations.toList.toSet
     implicit val arbiter = Arbitrary(Gen.oneOf(currencies))

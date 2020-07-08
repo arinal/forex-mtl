@@ -29,8 +29,6 @@ case class Module[F[_]: Sync: Concurrent: Timer: Logger](
 
 object Module {
 
-  import org.http4s._
-  import org.http4s.implicits._
   import cats.implicits._
 
   def apply[F[_]: ContextShift: ConcurrentEffect: Timer: Logger](

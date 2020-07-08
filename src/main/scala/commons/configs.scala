@@ -4,7 +4,6 @@ import org.http4s.Uri
 import org.http4s.ParseFailure
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
-import scala.util.Try
 
 object configs {
 

@@ -4,15 +4,7 @@ package interps.http
 import core.rates.domains.{Pair, Rate, Timestamp, Price, Currency}
 import core.rates.errors
 
-import org.http4s._
-import org.http4s.Method._
-import org.http4s.client.Client
-import org.http4s.client.dsl.Http4sClientDsl
-import org.http4s.headers.Accept
 import io.circe.Decoder
-import cats.data.NonEmptyList
-import cats.effect.Sync
-import cats.Applicative
 import cats.implicits._
 import java.time.OffsetDateTime
 

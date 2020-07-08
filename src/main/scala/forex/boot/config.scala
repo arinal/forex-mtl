@@ -2,7 +2,6 @@ package forex
 package boot
 
 import org.http4s.Uri
-import org.http4s.ParseFailure
 import pureconfig.ConfigSource
 import cats.effect.Sync
 import scala.concurrent.duration.FiniteDuration
@@ -11,7 +10,6 @@ import scala.util.Try
 object config {
 
   import commons.configs._
-  import cats.implicits._
   import pureconfig.generic.auto._
 
   case class AppConfig(

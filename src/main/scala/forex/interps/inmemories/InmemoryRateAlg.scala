@@ -8,7 +8,6 @@ import cats.data.NonEmptyList
 import cats.effect.concurrent.Ref
 import cats.implicits._
 import cats.effect.Sync
-import scala.concurrent.duration.FiniteDuration
 
 /**
  * Implementation of [[core.rates.Algebra]] using in-memory lookup data.

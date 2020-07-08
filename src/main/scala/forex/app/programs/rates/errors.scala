@@ -1,7 +1,6 @@
 package forex.app.programs.rates
 
 import forex.core.rates.errors.{Error => CoreError}
-import forex.core.rates.domains.Currency
 import scala.util.control.NoStackTrace
 
 object errors {

@@ -13,7 +13,6 @@ package object http {
 
   import org.http4s.circe._
   import org.http4s.implicits._
-  import cats.implicits._
 
   object codecs {
     implicit def deriveEntityEncoder[F[_]: Applicative, A: Encoder]: EntityEncoder[F, A] = jsonEncoderOf[F, A]
