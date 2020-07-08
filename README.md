@@ -55,7 +55,7 @@ The scheduler to update the cache is implemented using `fs2` [here](https://gith
 ## Code practices and structures
 
 The initiator of this project used typelevel stacks and aimed to be more functional scala way. Aligned with this initiative, this project tries to follow functional programming principles
-by avoiding side effects and impurity. Every impure statement will be wrapped inside a container.
+by avoiding side effects and impurity. Every impure statement will be wrapped inside a container, like `IO` or generic `F[_]`.
 
 Forex structures the packages based on hexagonal architecture.
 

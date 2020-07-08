@@ -19,7 +19,7 @@ class OneFrameDummyRateAlg[F[_]: Sync: Timer](zoneId: ZoneId) extends rates.Alge
       rate = Rate(pair, Price.ofInt(100), now)
     } yield rate.asRight[Error]
 
-  override def get(pairs: NonEmptyList[Pair]): F[Error Either NonEmptyList[Rate]] =
+  override def getAll(pairs: NonEmptyList[Pair]): F[Error Either NonEmptyList[Rate]] =
     for {
       results <- pairs.traverse(get)
       res      = results.traverse(identity)

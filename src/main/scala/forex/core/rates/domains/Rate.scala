@@ -1,15 +1,15 @@
 package forex.core.rates.domains
 
 import cats.data.NonEmptyList
+import cats.Show
 
 case class Rate(pair: Pair, price: Price, timestamp: Timestamp)
-final case class Pair(from: Currency, to: Currency)
+final case class Pair private (from: Currency, to: Currency)
 
 object Rate {
 
-  def pairFromTuple(tuple: (Currency, Currency)): Pair =
-    Pair(tuple._1, tuple._2)
+  implicit val pairShow = Show.show[Pair](p => s"${p.from}${p.to}")
 
   def allCurrencyPairs: NonEmptyList[Pair] =
-    Currency.allCombinations.map(pairFromTuple)
+    Currency.allCombinations.map { case (c1, c2) => Pair(c1, c2) }
 }

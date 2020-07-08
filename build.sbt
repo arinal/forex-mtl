@@ -7,6 +7,7 @@ ThisBuild / organization := "lamedh"
 lazy val root = (project in file("."))
   .settings(
     name := "forex",
+    Defaults.itSettings,
     libraryDependencies ++= Seq(
       compilerPlugin(kindProjector cross CrossVersion.full),
       cats,
@@ -26,6 +27,7 @@ lazy val root = (project in file("."))
     ) ++ List(contextApplied, betterMonadic).map(compilerPlugin(_)),
     testFrameworks += new TestFramework("weaver.framework.TestFramework")
   )
+  .configs(IntegrationTest)
   .enablePlugins(DockerPlugin, AshScriptPlugin)
   .settings(
     dockerBaseImage := "openjdk:8-alpine",

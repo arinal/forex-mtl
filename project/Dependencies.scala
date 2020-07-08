@@ -34,8 +34,8 @@ object Dependencies {
   val log4cats   = "io.chrisdavenport"     %% "log4cats-slf4j"  % versions.log4cats
   val logback    = "ch.qos.logback"        % "logback-classic"  % versions.logback
 
-  val weaverTest  = "com.disneystreaming" %% "weaver-framework"  % versions.weaverTest % Test
-  val weaverCheck = "com.disneystreaming" %% "weaver-scalacheck" % versions.weaverTest % Test
+  val weaverTest  = "com.disneystreaming" %% "weaver-framework"  % versions.weaverTest % "test,it"
+  val weaverCheck = "com.disneystreaming" %% "weaver-scalacheck" % versions.weaverTest % "test,it"
 
   val kindProjector  = "org.typelevel"  %% "kind-projector"     % versions.kindProjector
   val contextApplied = "org.augustjune" %% "context-applied"    % "0.1.3"

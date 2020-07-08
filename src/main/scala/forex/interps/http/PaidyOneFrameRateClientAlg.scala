@@ -29,11 +29,11 @@ class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
 
   override def get(pair: Pair): F[errors.Error Either Rate] =
     for {
-      either <- get(NonEmptyList.one(pair))
+      either <- getAll(NonEmptyList.one(pair))
       res     = either.map(_.head)
     } yield res
 
-  override def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
+  override def getAll(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
     getRaw(pairs).map {
       case Right(rateRespList) => rateRespList.map(_.toDomain).asRight
       case Left(err)           => err.toDomain.asLeft
@@ -55,9 +55,10 @@ class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
     Logger[F].info(s"Invoking to Paidy one frame $request") >>
       client.fetch[ErrorResponse Either NonEmptyList[RateResponse]](request) { response =>
         if (response.status == Status.Ok) {
-          response.asJsonDecode[NonEmptyList[RateResponse]].attempt.flatMap {
-            case Right(r) => r.asRight.pure[F]
-            case Left(_)  => response.asJsonDecode[ErrorResponse].map(Left(_))
+          response.asJsonDecode[List[RateResponse]].attempt.flatMap {
+            case Right(Nil)   => ErrorResponse("Double Pair").asLeft.pure[F]
+            case Right(rates) => NonEmptyList.fromListUnsafe(rates).asRight.pure[F]
+            case Left(_)      => response.asJsonDecode[ErrorResponse].map(Left(_))
           }
         } else
           Logger[F].error(s"Unexpected error.\nRequest:$request\nResponse:$response") >>

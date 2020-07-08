@@ -18,16 +18,18 @@ import scala.concurrent.duration.FiniteDuration
 **/
 class InmemoryRateAlg[F[_]: Sync](mapRef: Ref[F, Map[Pair, Rate]]) extends rates.Algebra[F] {
 
-  override def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
-    getByPairs(pairs)
-
   override def get(pair: Pair): F[errors.Error Either Rate] =
-    getByPairs(NonEmptyList.one(pair)).map {
+    getAll(NonEmptyList.one(pair)).map {
       case Right(rates) => rates.head.asRight
       case Left(err)    => err.asLeft
     }
 
-  private def getByPairs(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
+  override def getAll(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] = {
+    if (pairs.forall(p => p.from != p.to)) lookup(pairs)
+    else F.pure(errors.Error.DoublePair.asLeft)
+  }
+
+  private def lookup(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
     for {
       rateMap <- mapRef.get
       rateList = pairs.toList.flatMap(p => rateMap.get(p))

@@ -19,7 +19,7 @@ trait Algebra[F[_]] {
    * @param pairs list of [[Pair]] which currencies to be calculated
    * @return list of [[Rate]]
   **/
-  def get(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]]
+  def getAll(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]]
 
   /**
    * Get all rates for every combinations of supported currencies.
@@ -31,7 +31,7 @@ trait Algebra[F[_]] {
   **/
   def allRates: fs2.Stream[F, Rate] =
     fs2.Stream
-      .eval(get(Rate.allCurrencyPairs))
+      .eval(getAll(Rate.allCurrencyPairs))
       .filter(_.isRight)
       .map(_.right.get.toList) // get is safe here, since it's guaranted right by previous filter operation
       .flatMap(fs2.Stream.apply)

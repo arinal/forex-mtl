@@ -36,6 +36,7 @@ object protocols {
     def toDomain: errors.Error =
       error match {
         case "Invalid Currency Pair" => errors.Error.CurrencyNotSupported()
+        case "Double Pair"           => errors.Error.DoublePair
         case msg                     => errors.Error.RateLookupFailed(msg)
       }
   }
