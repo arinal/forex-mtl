@@ -93,7 +93,13 @@ write business logic here.
 
 ## Room for improvements
 
-- More testing.
+- `Pair.apply` could be made private and make a factory constructor which returns `Option[Pair]` instead.
+- More testing, or if possible, apply testing based on algebraic laws.
 - OpenAPI specifications, probably using [tAPIr](https://tapir.softwaremill.com/en/latest/).
 - Streamify the initialization process. Currently we call `.compile.drain` twice. We can simplify it to become one.
 - Simulation testing will verify that Forex never exceeds 1000 invocations (a `oneframe` constraint). A fake full day test ought to be implemented by supplying fake timer.
+
+## Thank you note
+
+A huge thank you to the initiator of this project, code styles and provided libraries has already matched with mine.
+A huge thank you to Olivier Mélois, author of [weaver-test](https://github.com/disneystreaming/weaver-test).
