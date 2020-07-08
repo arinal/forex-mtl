@@ -32,9 +32,15 @@ Try to get the conversion rate between Indonesian Rupiah and Japanese Yen.
 curl 'localhost:9090/rates?from=IDR&to=JPY'
 ```
 What about, asking for all of the possible permutations of exchange rates?
-```
+```bash
 curl 'localhost:9090/rates'
 ```
+Firing up unit testing and integration testing.
+```bash
+sbt test
+sbt it:test # make sure docker-compose up has executed beforehand
+```
+Happy hacking!
 
 ## Approach
 
@@ -93,6 +99,8 @@ write business logic here.
 
 ## Room for improvements
 
+- The discussed approach is only working if the supported currencies are minimal.
+- Retry logic when calling `oneframe` API.
 - `Pair.apply` could be made private and make a factory constructor which returns `Option[Pair]` instead.
 - More testing, or if possible, apply testing based on algebraic laws.
 - OpenAPI specifications, probably using [tAPIr](https://tapir.softwaremill.com/en/latest/).
@@ -101,5 +109,5 @@ write business logic here.
 
 ## Thank you note
 
-A huge thank you to the initiator of this project, code styles and provided libraries has already matched with mine.
+A huge thank you to the initiator of this project, the provided code style and provided libraries matches with me.
 A huge thank you to Olivier Mélois, author of [weaver-test](https://github.com/disneystreaming/weaver-test).

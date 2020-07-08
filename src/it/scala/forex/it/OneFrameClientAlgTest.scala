@@ -23,12 +23,6 @@ object OneFrameClientAlgTest extends IOSuite with IOCheckers {
   val uri             = Uri.fromString("http://localhost:8080").right.get
   implicit val logger = Slf4jLogger.getLogger[IO]
 
-  override type Res = PaidyOneFrameRateClientAlg[IO]
-  override def sharedResource: Resource[IO, Res] =
-    BlazeClientBuilder[IO](ec).resource.evalMap { client =>
-      PaidyOneFrameRateClientAlg(uri, client, "10dc303535874aeccc86a8251e6992f5")
-    }
-
   test("get valid pair should get right result") { algebra =>
     import forex.it.arbiters.currencies.validPairs
     forall { pair: Pair =>
@@ -42,4 +36,10 @@ object OneFrameClientAlgTest extends IOSuite with IOCheckers {
       algebra.get(pair).map(either => expect(either == Left(errors.Error.DoublePair)))
     }
   }
+
+  override type Res = PaidyOneFrameRateClientAlg[IO]
+  override def sharedResource: Resource[IO, Res] =
+    BlazeClientBuilder[IO](ec).resource.evalMap { client =>
+      PaidyOneFrameRateClientAlg(uri, client, "10dc303535874aeccc86a8251e6992f5")
+    }
 }

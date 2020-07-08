@@ -16,11 +16,18 @@ object ForexTest extends IOSuite with IOCheckers {
 
   import Rate._
 
-  override type Res = Client[IO]
-  override def sharedResource: Resource[IO, Res] =
-    BlazeClientBuilder[IO](ec).resource
+  test("'GET /rates?(valid pair)' get single rate returns Ok") { client =>
+    import forex.it.arbiters.currencies.validPairs
+    forall { pair: Pair =>
+      for {
+        code <- client.get(singleRateUrl(pair)) { resp =>
+                  IO.pure(resp.status)
+                }
+      } yield expect(code == Status.Ok)
+    }
+  }
 
-  test("'GET /rates' returns Ok") { client =>
+  test("'GET /rates' : get all rates returns Ok") { client =>
     for {
       code <- client.get("http://localhost:9090/rates") { resp =>
                 IO.pure(resp.status)
@@ -28,15 +35,22 @@ object ForexTest extends IOSuite with IOCheckers {
     } yield expect(code == Status.Ok)
   }
 
-  test("'GET /rates?(invalid pair)' returns BadRequest") { client =>
-    import forex.it.arbiters.currencies.invalidPairs
-    forall { pair: Pair =>
-      val (c1, c2) = (pair.from, pair.to)
-      for {
-        code <- client.get(s"http://localhost:9090/rates?from=$c1&to=$c2") { resp =>
-                  IO.pure(resp.status)
-                }
-      } yield expect(code == Status.BadRequest)
-    }
+  test("'GET /rates?(invalid pair)' get single rate with invalid pair returns BadRequest") {
+    client =>
+      import forex.it.arbiters.currencies.invalidPairs
+      forall { pair: Pair =>
+        for {
+          code <- client.get(singleRateUrl(pair)) { resp =>
+                    IO.pure(resp.status)
+                  }
+        } yield expect(code == Status.BadRequest)
+      }
   }
+
+  override type Res = Client[IO]
+  override def sharedResource: Resource[IO, Res] =
+    BlazeClientBuilder[IO](ec).resource
+
+  def singleRateUrl(pair: Pair) =
+    s"http://localhost:9090/rates?from=${pair.from}&to=${pair.to}"
 }
