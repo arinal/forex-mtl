@@ -42,26 +42,34 @@ sbt it:test # make sure docker-compose up has executed beforehand
 ```
 Happy hacking!
 
+## Technology used
+
+- [Cats-effect](https://typelevel.org/cats-effect/)
+- [fs2](https://fs2.io/index.html)
+- [http4s](https://fs2.io/index.html)
+- [Weaver Test](https://disneystreaming.github.io/weaver-test/docs/multiple_suites_logging)
+- [circe](https://circe.github.io/circe/parsing.html)
+
 ## Approach
 
-`oneframe` service supports multiple pairs of queries in one `GET` request. Instead of asking for only one rate of AUD to USD, we can also ask for other rates at once like GBP to USD, JPY to AUD, etc.
-To get the most benefits out of this, Forex will literally take every permutation of our supported currencies and caches all the rate results from `oneframe`.
-This will only work if our supported currencies are minimal. Querying all of 22350 currency combinations in the world in a single GET to `oneframe` doesn't sound like a good plan,
-but given that our server only supports 14 currencies, the permutation is 182 and luckily still in the acceptable range of the `oneframe` server.
+`oneframe` service supports multiple pairs of queries in one `GET` request. Instead of asking for only one exchange rate, we can also ask for other rates at once like GBP to USD, JPY to AUD, etc.
+To get the most benefits out of this, Forex will literally take every permutation of our supported currencies and caches all the rate results taken from `oneframe`.
+Of course, this will only work if our supported currencies are minimal. Querying all of 22350 currency combinations in the world in a single GET to `oneframe` doesn't sound like a good plan,
+but given that our server only supports 14 currencies, the permutation is only 182 and luckily still in the acceptable range of the `oneframe` server.
 
-The main goals of forex are two-fold:
+The main goals of Forex are two-fold:
 - Overcome the limitations of 1000 invocations per day that the `oneframe` server gives.
 - If local cache is used, it must be no older than 5 minutes.
 
-If we call `oneframe` every 86.4 seconds, starting early in the day, the 1000th call will be at the very end of the day. That is, Forex tries to call `oneframe` evenly to update its cache.
-Hence the cache age wouldn't be older than 86.4 seconds. And yes, we call `oneframe` greedily to update every currency combinations within each call :)
+If we call `oneframe` every 86.4 seconds starting early in the day, the 1000th call will be at the very end of the day. That is, Forex tries to call `oneframe` 1000 times in a day by waiting 86.4 seconds
+between each calls, hence the cache age wouldn't be older than 86.4 seconds. And yes, we call `oneframe` greedily to update every currency combinations within each call :)
 
 The scheduler to update the cache is implemented using `fs2` [here](https://github.com/arinal/forex-mtl/blob/master/src/main/scala/forex/app/stream/updater/package.scala).
 
 
 ## Code practices and structures
 
-The initiator of this project used typelevel stacks and aimed to be more functional scala way. Aligned with this initiative, this project tries to follow functional programming principles
+The initiator of this project used typelevel stacks and aimed to be more using scala in functional way. Aligned with this initiative, this project tries to follow functional programming principles
 by avoiding side effects and impurity. Every impure expression will be wrapped inside an `IO` construct.
 
 Forex structures the packages based on hexagonal architecture.
@@ -109,6 +117,6 @@ write business logic here.
 
 ## Thank you note
 
-A huge thank you to the initiator of this project, the shape has already good since the beginning. This project is only a continuation from a good foundation.
+A huge thank you to the initiator of this project, the shape has already been good since the very beginning. This project is only a continuation from a good foundation.
 
 A huge thank you to Olivier Mélois, author of [weaver-test](https://github.com/disneystreaming/weaver-test).
