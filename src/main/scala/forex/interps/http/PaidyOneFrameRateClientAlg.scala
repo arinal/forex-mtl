@@ -10,7 +10,6 @@ import org.http4s.client.Client
 import org.http4s.client.dsl.Http4sClientDsl
 import io.chrisdavenport.log4cats.Logger
 import cats.effect.Sync
-import cats.implicits._
 import cats.data.NonEmptyList
 
 class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
@@ -20,6 +19,7 @@ class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
 ) extends core.rates.Algebra[F]
     with Http4sClientDsl[F] {
 
+  import cats.implicits._
   import protocols._
   import org.http4s.circe._
 
@@ -31,7 +31,7 @@ class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
 
   override def getAll(pairs: NonEmptyList[Pair]): F[errors.Error Either NonEmptyList[Rate]] =
     getRaw(pairs).map {
-      case Right(rateRespList) => rateRespList.map(_.toDomain).asRight
+      case Right(rateRespList) => rateRespList.map(_.toDomain).sequence
       case Left(err)           => err.toDomain.asLeft
     }
 
@@ -46,7 +46,9 @@ class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
     )
   }
 
-  private def getRaw(pairs: NonEmptyList[Pair]) = {
+  private def getRaw(
+      pairs: NonEmptyList[Pair]
+  ): F[ErrorResponse Either NonEmptyList[RateResponse]] = {
     val request = mkRequest(pairs)
     Logger[F].info(s"Invoking to Paidy one frame $request") >>
       client.fetch[ErrorResponse Either NonEmptyList[RateResponse]](request) { response =>
@@ -64,7 +66,6 @@ class PaidyOneFrameRateClientAlg[F[_]: Sync: Logger](
 }
 
 object PaidyOneFrameRateClientAlg {
-
 
   def apply[F[_]: Sync: Logger](
       oneFrameUri: Uri,

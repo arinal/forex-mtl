@@ -20,8 +20,7 @@ object protocols {
       price: BigDecimal,
       time_stamp: OffsetDateTime
   ) {
-    def toDomain =
-      Rate(Pair(from, to), Price(price), Timestamp(time_stamp))
+    def toDomain: errors.Error Either Rate = Rate.create(from, to, price, time_stamp)
   }
 
   final case class ErrorResponse(error: String) {

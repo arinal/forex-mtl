@@ -1,6 +1,7 @@
 package core.rates.domains
 
 import forex.core.rates.domains.Currency
+
 import weaver._
 import weaver.scalacheck.IOCheckers
 import org.scalacheck.Arbitrary
@@ -8,7 +9,6 @@ import org.scalacheck.Gen
 
 object CurrencySpec extends SimpleIOSuite with IOCheckers {
 
-  import Currency._
   import cats.implicits._
 
   pureTest("Currency 'allCombinationsLength' is correct") {
