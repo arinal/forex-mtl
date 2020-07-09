@@ -44,10 +44,10 @@ Happy hacking!
 
 ## Approach
 
-`oneframe` service supports multiple pairs of queries in one GET request. Instead of asking for only one rate of AUD to USD, we can also ask for other rates like GBP to USD, JPY to AUD, etc.
+`oneframe` service supports multiple pairs of queries in one `GET` request. Instead of asking for only one rate of AUD to USD, we can also ask for other rates at once like GBP to USD, JPY to AUD, etc.
 To get the most benefits out of this, Forex will literally take every permutation of our supported currencies and caches all the rate results from `oneframe`.
-This will only work if our supported currencies are minimal. In trying to query all of 22350 combinations of the currencies in the world in single GET to `oneframe`, it didn't work well.
-Given that our server only supports 14 currencies, the permutation is 182 and luckily still in the acceptable range of the `oneframe` server.
+This will only work if our supported currencies are minimal. Querying all of 22350 currency combinations in the world in a single GET to `oneframe` doesn't sound like a good plan,
+but given that our server only supports 14 currencies, the permutation is 182 and luckily still in the acceptable range of the `oneframe` server.
 
 The main goals of forex are two-fold:
 - Overcome the limitations of 1000 invocations per day that the `oneframe` server gives.
@@ -58,10 +58,11 @@ Hence the cache age wouldn't be older than 86.4 seconds. And yes, we call `onefr
 
 The scheduler to update the cache is implemented using `fs2` [here](https://github.com/arinal/forex-mtl/blob/master/src/main/scala/forex/app/stream/updater/package.scala).
 
+
 ## Code practices and structures
 
 The initiator of this project used typelevel stacks and aimed to be more functional scala way. Aligned with this initiative, this project tries to follow functional programming principles
-by avoiding side effects and impurity. Every impure statement will be wrapped inside a container, like `IO` or generic `F[_]`.
+by avoiding side effects and impurity. Every impure expression will be wrapped inside an `IO` construct.
 
 Forex structures the packages based on hexagonal architecture.
 
@@ -101,7 +102,6 @@ write business logic here.
 
 - The discussed approach is only working if the supported currencies are minimal.
 - Retry logic when calling `oneframe` API.
-- `Pair.apply` could be made private and make a factory constructor which returns `Option[Pair]` instead.
 - More testing, or if possible, apply testing based on algebraic laws.
 - OpenAPI specifications, probably using [tAPIr](https://tapir.softwaremill.com/en/latest/).
 - Streamify the initialization process. Currently we call `.compile.drain` twice. We can simplify it to become one.
@@ -109,5 +109,6 @@ write business logic here.
 
 ## Thank you note
 
-A huge thank you to the initiator of this project, the provided code style and provided libraries matches with me.
+A huge thank you to the initiator of this project, the shape has already good since the beginning. This project is only a continuation from a good foundation.
+
 A huge thank you to Olivier Mélois, author of [weaver-test](https://github.com/disneystreaming/weaver-test).
